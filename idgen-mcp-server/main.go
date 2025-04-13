@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/mark3labs/mcp-go/server"
-	idgenserver "github.com/syumai/mcp/idgen/server"
+	idgenserver "github.com/syumai/mcp/idgen-mcp-server/server"
 )
 
 func main() {

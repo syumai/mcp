@@ -1,4 +1,4 @@
-module github.com/syumai/mcp/idgen
+module github.com/syumai/mcp/idgen-mcp-server
 
 go 1.24.1
 
