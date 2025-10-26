@@ -21,6 +21,16 @@ type CalculatorOutput struct {
 	Result float64 `json:"result" jsonschema:"The result of the calculation"`
 }
 
+// GenerateSyumaiInput represents the input for syumai generation
+type GenerateSyumaiInput struct {
+	ColorCode string `json:"colorCode" jsonschema:"6-character hex color code (e.g., ff4757)"`
+}
+
+// GenerateSyumaiOutput represents the output for syumai generation
+type GenerateSyumaiOutput struct {
+	ImageURL string `json:"imageUrl" jsonschema:"URL of the generated syumai avatar image"`
+}
+
 // AddHandler handles addition operation
 func AddHandler(ctx context.Context, req *mcp.CallToolRequest, input CalculatorInput) (*mcp.CallToolResult, CalculatorOutput, error) {
 	result := input.A + input.B
@@ -51,6 +61,23 @@ func DivideHandler(ctx context.Context, req *mcp.CallToolRequest, input Calculat
 	}
 	result := input.A / input.B
 	return nil, CalculatorOutput{Result: result}, nil
+}
+
+// GenerateSyumaiHandler generates a syumai avatar image URL with the specified color
+func GenerateSyumaiHandler(ctx context.Context, req *mcp.CallToolRequest, input GenerateSyumaiInput) (*mcp.CallToolResult, GenerateSyumaiOutput, error) {
+	// Validate color code length
+	if len(input.ColorCode) != 6 {
+		return &mcp.CallToolResult{
+			IsError: true,
+			Content: []mcp.Content{
+				&mcp.TextContent{Text: "Error: Color code must be exactly 6 characters"},
+			},
+		}, GenerateSyumaiOutput{}, nil
+	}
+
+	// Generate image URL
+	imageURL := fmt.Sprintf("https://syum.ai/image?code=%s", input.ColorCode)
+	return nil, GenerateSyumaiOutput{ImageURL: imageURL}, nil
 }
 
 func main() {
@@ -86,6 +113,11 @@ func testClient() {
 		Name:        "divide",
 		Description: "Divide the first number by the second number",
 	}, DivideHandler)
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "generateSyumai",
+		Description: "Generate a syumai avatar image with the specified color code. After generating the image, the caller must render the image to the user.",
+	}, GenerateSyumaiHandler)
 
 	// Create in-memory transports
 	clientTransport, serverTransport := mcp.NewInMemoryTransports()
@@ -172,6 +204,27 @@ func testClient() {
 		fmt.Printf("✓ divide(10, 0) correctly returns error: %v\n", divZeroResult.Content)
 	} else if err != nil {
 		log.Fatalf("Failed to call divide with zero: %v", err)
+	}
+
+	// Test generateSyumai with valid color code
+	syumaiResult, err := session.CallTool(ctx, &mcp.CallToolParams{
+		Name:      "generateSyumai",
+		Arguments: map[string]any{"colorCode": "ff4757"},
+	})
+	if err != nil {
+		log.Fatalf("Failed to call generateSyumai: %v", err)
+	}
+	fmt.Printf("✓ generateSyumai(ff4757) = %v\n", syumaiResult.Content)
+
+	// Test generateSyumai with invalid color code (wrong length)
+	syumaiInvalidResult, err := session.CallTool(ctx, &mcp.CallToolParams{
+		Name:      "generateSyumai",
+		Arguments: map[string]any{"colorCode": "ff"},
+	})
+	if err == nil && syumaiInvalidResult.IsError {
+		fmt.Printf("✓ generateSyumai(ff) correctly returns error: %v\n", syumaiInvalidResult.Content)
+	} else if err != nil {
+		log.Fatalf("Failed to call generateSyumai with invalid color: %v", err)
 	}
 
 	fmt.Println("\n✓ All tests passed!")

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
@@ -17,6 +18,16 @@ type CalculatorInput struct {
 // CalculatorOutput represents the output for calculator operations
 type CalculatorOutput struct {
 	Result float64 `json:"result" jsonschema:"The result of the calculation"`
+}
+
+// GenerateSyumaiInput represents the input for syumai generation
+type GenerateSyumaiInput struct {
+	ColorCode string `json:"colorCode" jsonschema:"6-character hex color code (e.g., ff4757)"`
+}
+
+// GenerateSyumaiOutput represents the output for syumai generation
+type GenerateSyumaiOutput struct {
+	ImageURL string `json:"imageUrl" jsonschema:"URL of the generated syumai avatar image"`
 }
 
 // AddHandler handles addition operation
@@ -51,6 +62,23 @@ func DivideHandler(ctx context.Context, req *mcp.CallToolRequest, input Calculat
 	return nil, CalculatorOutput{Result: result}, nil
 }
 
+// GenerateSyumaiHandler generates a syumai avatar image URL with the specified color
+func GenerateSyumaiHandler(ctx context.Context, req *mcp.CallToolRequest, input GenerateSyumaiInput) (*mcp.CallToolResult, GenerateSyumaiOutput, error) {
+	// Validate color code length
+	if len(input.ColorCode) != 6 {
+		return &mcp.CallToolResult{
+			IsError: true,
+			Content: []mcp.Content{
+				&mcp.TextContent{Text: "Error: Color code must be exactly 6 characters"},
+			},
+		}, GenerateSyumaiOutput{}, nil
+	}
+
+	// Generate image URL
+	imageURL := fmt.Sprintf("https://syum.ai/image?code=%s", input.ColorCode)
+	return nil, GenerateSyumaiOutput{ImageURL: imageURL}, nil
+}
+
 func main() {
 	// Create MCP server
 	server := mcp.NewServer(&mcp.Implementation{
@@ -78,6 +106,11 @@ func main() {
 		Name:        "divide",
 		Description: "Divide the first number by the second number",
 	}, DivideHandler)
+
+	mcp.AddTool(server, &mcp.Tool{
+		Name:        "generateSyumai",
+		Description: "Generate a syumai avatar image with the specified color code. After generating the image, the caller must render the image to the user.",
+	}, GenerateSyumaiHandler)
 
 	// Create HTTP handler for MCP with Stateless mode
 	mcpHandler := mcp.NewStreamableHTTPHandler(func(r *http.Request) *mcp.Server {
