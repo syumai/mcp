@@ -21,6 +21,16 @@ This project demonstrates how to build and deploy an MCP server on Cloudflare Wo
   - `multiply` - Multiplication of two numbers
   - `divide` - Division with zero-division error handling
 
+### Live Demo
+
+You can try the deployed MCP server at:
+
+```
+https://cloudflare-go-mcp-example.syumai.workers.dev/mcp
+```
+
+This is a working instance of the calculator MCP server running on Cloudflare Workers. You can use this URL in your MCP client configuration to test the server without deploying your own instance.
+
 ## Notice
 
 Go (not TinyGo) with many dependencies may exceed the size limit of the Worker (3MB for free plan, 10MB for paid plan). In that case, consider optimizing dependencies or using the TinyGo compiler.
