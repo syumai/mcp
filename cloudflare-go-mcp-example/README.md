@@ -15,11 +15,12 @@ This project demonstrates how to build and deploy an MCP server on Cloudflare Wo
 - **MCP server implementation in Go** using the official SDK
 - **Runs on Cloudflare Workers** (edge computing)
 - **WebAssembly-based deployment**
-- **Four calculator tools** for basic arithmetic operations:
+- **Five MCP tools**:
   - `add` - Addition of two numbers
   - `subtract` - Subtraction of two numbers
   - `multiply` - Multiplication of two numbers
   - `divide` - Division with zero-division error handling
+  - `generateSyumai` - Generate a syumai avatar image with custom colors
 
 ### Live Demo
 
@@ -137,7 +138,7 @@ After deployment to Cloudflare Workers, replace the URL with your deployed worke
 
 ## Available Tools
 
-The calculator MCP server provides four tools:
+The MCP server provides five tools:
 
 ### add
 Add two numbers together.
@@ -180,6 +181,25 @@ Divide the first number by the second number.
 - `result` (number): The quotient (a / b)
 
 **Error handling:** Returns an error if b is zero.
+
+### generateSyumai
+Generate a syumai avatar image with the specified color code.
+
+**Input:**
+- `colorCode` (string): 6-character hex color code (e.g., "ff4757", "3742fa")
+
+**Output:**
+- `imageUrl` (string): URL of the generated syumai avatar image
+
+**Error handling:** Returns an error if the color code is not exactly 6 characters.
+
+**Example:**
+```json
+{
+  "colorCode": "ff4757"
+}
+```
+Returns an image URL: `https://syum.ai/image?code=ff4757`
 
 ## Deployment
 
