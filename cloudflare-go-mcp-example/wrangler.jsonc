@@ -4,7 +4,7 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "mcp-example",
+	"name": "cloudflare-go-mcp-example",
 	"main": "./build/worker.mjs",
 	"compatibility_date": "2025-10-24",
 	"build": {
